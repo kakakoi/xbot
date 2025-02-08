@@ -1,37 +1,32 @@
 import { openrouterConfig } from "../config/config";
 import { ConfigError } from "../errors/ConfigError";
 import { OpenRouterService } from "../services/openrouter";
-import { sendTweet } from "../services/twitter";
-import type { TwitterApiError } from "../types/twitter";
+import { TwitterApiRateLimitError, sendTweet } from "../services/twitter";
 
 export async function tweetCommand() {
   try {
     const openrouter = new OpenRouterService(openrouterConfig);
+    const tweet = await openrouter.generateTweet({
+      topic: "先週の日本株で目立った銘柄3つ予想",
+      mood: "楽しい",
+    });
+
+    console.log("生成されたツイート:", tweet);
 
     try {
-      const tweet = await openrouter.generateTweet({
-        topic: "先週の日本株で目立った銘柄3つ予想",
-        mood: "楽しい",
-      });
-
-      console.log("生成されたツイート:", tweet);
-
-      try {
-        await sendTweet(tweet);
-        console.log("ツイートの投稿が完了しました");
-      } catch (twitterError) {
-        const error = twitterError as TwitterApiError;
-        if (error.code === 429) {
-          throw new Error(
-            "Twitter APIの制限に達しました。しばらく時間をおいて再実行してください。",
-          );
-        }
-        throw error;
-      }
+      await sendTweet(tweet);
+      console.log("ツイートの投稿が完了しました");
     } catch (error) {
-      throw new Error(
-        `OpenRouter APIエラー: ${error instanceof Error ? error.message : String(error)}`,
-      );
+      if (error instanceof TwitterApiRateLimitError) {
+        console.error("\n=== レート制限エラー ===");
+        if (error.resetTime) {
+          console.error(`制限解除時刻: ${error.resetTime.toLocaleString()}`);
+        }
+        console.error(error.message);
+      } else {
+        console.error("Twitter APIエラー:", error);
+      }
+      process.exit(1);
     }
   } catch (error) {
     if (error instanceof ConfigError) {
@@ -42,7 +37,9 @@ export async function tweetCommand() {
       if (error.value) {
         console.error("詳細:", error.value);
       }
+    } else {
+      console.error("エラーが発生しました:", error);
     }
-    throw error;
+    process.exit(1);
   }
 }
