@@ -1,7 +1,7 @@
 import { TwitterApi } from 'twitter-api-v2';
 import { config } from '../config/config';
 
-async function sendTweet(text: string) {
+export async function sendTweet(text: string) {
     console.log('Twitter APIクライアントを初期化中...');
     
     const client = new TwitterApi({
@@ -43,7 +43,9 @@ async function sendTweet(text: string) {
     }
 }
 
-// テストツイート
-sendTweet('APIテスト投稿 #test')
-    .then(() => console.log('処理完了'))
-    .catch(() => process.exit(1));
+// テストコードは直接実行時のみ実行されるように修正
+if (require.main === module) {
+    sendTweet('APIテスト投稿 #test')
+        .then(() => console.log('処理完了'))
+        .catch(() => process.exit(1));
+}
