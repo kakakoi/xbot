@@ -18,18 +18,12 @@ AIを使用して日本株に関するツイートを自動生成・投稿する
 
 ## セットアップ
 
-1. リポジトリのクローン
-```bash
-git clone https://github.com/yourusername/xbot.git
-cd xbot
-```
-
-2. 依存パッケージのインストール
+1. 依存パッケージのインストール
 ```bash
 npm install
 ```
 
-3. 環境変数の設定
+2. 環境変数の設定
 ```bash
 cp .env.example .env
 # .envファイルを編集して各種APIキーを設定
