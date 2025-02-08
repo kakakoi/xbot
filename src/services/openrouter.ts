@@ -1,22 +1,61 @@
 import type {
   GenerationResponse,
+  OpenRouterCompletion,
   OpenRouterConfig,
-  OpenRouterKey,
-  OpenRouterResponse,
   TweetGenerationPrompt,
 } from '../types/openrouter';
+import { BaseService } from './base';
 
-export class OpenRouterService {
-  private config: OpenRouterConfig;
+export class OpenRouterService extends BaseService {
   private baseURL: string;
 
-  constructor(config: OpenRouterConfig) {
-    this.config = config;
-    this.baseURL = config.baseURL || 'https://openrouter.ai/api/v1';
+  constructor(private config: OpenRouterConfig) {
+    super();
+    this.baseURL = 'https://openrouter.ai/api/v1';
   }
 
-  private async sleep(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+  async generateTweet(prompt: TweetGenerationPrompt): Promise<string> {
+    const completion = await this.createCompletion(prompt);
+    const generationInfo = await this.getGenerationInfo(completion.id);
+    await this.logGenerationDetails(generationInfo.data);
+    return completion.choices[0].message.content;
+  }
+
+  private createSystemPrompt(prompt: TweetGenerationPrompt): string {
+    return `あなたは日本語でツイートするAIボットです。
+- 自然な日本語で書く
+- カジュアルでフレンドリーな口調を使う
+- 280文字以内で書く
+- トピック：${prompt.topic || '一般的な話題'}
+- トーン：${prompt.mood || '明るい'}`;
+  }
+
+  private async createCompletion(
+    prompt: TweetGenerationPrompt,
+  ): Promise<OpenRouterCompletion> {
+    const systemPrompt = this.createSystemPrompt(prompt);
+    const response = await fetch(`${this.baseURL}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${this.config.apiKey}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://github.com/yourusername/xbot',
+        'X-Title': 'XBot',
+      },
+      body: JSON.stringify({
+        model: this.config.model,
+        temperature: this.config.temperature,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          {
+            role: 'user',
+            content: '今の気分で自然なツイートを1つ生成してください',
+          },
+        ],
+      }),
+    });
+
+    return this.handleResponse<OpenRouterCompletion>(response);
   }
 
   private async getGenerationInfo(
@@ -66,15 +105,8 @@ export class OpenRouterService {
     throw new Error('生成情報の取得に失敗: リトライ回数超過');
   }
 
-  private async logGenerationDetails(id: string) {
+  private async logGenerationDetails(data: GenerationResponse['data']) {
     try {
-      const genInfo = await this.getGenerationInfo(id);
-      if (!genInfo?.data) {
-        console.error('生成情報が不正な形式です:', genInfo);
-        return;
-      }
-
-      const { data } = genInfo;
       console.log('\n生成詳細情報:');
 
       // 必須項目の存在確認
@@ -98,7 +130,7 @@ export class OpenRouterService {
       if (data.total_cost !== undefined) {
         console.log('\nコスト情報:');
         console.log(`- 合計コスト: $${data.total_cost.toFixed(6)}`);
-        if (data.cache_discount > 0) {
+        if (data.cache_discount && data.cache_discount > 0) {
           console.log(
             `- キャッシュ割引: ${(data.cache_discount * 100).toFixed(1)}%`,
           );
@@ -120,54 +152,5 @@ export class OpenRouterService {
         error instanceof Error ? error.message : String(error),
       );
     }
-  }
-
-  async generateTweet(prompt: TweetGenerationPrompt): Promise<string> {
-    console.log('使用モデル:', this.config.model);
-
-    const systemPrompt = `あなたは日本語でツイートするAIボットです。以下の条件に従ってツイートを生成してください：
-
-- 自然な日本語で書く
-- カジュアルでフレンドリーな口調を使う
-- 280文字以内で書く
-- トピック：${prompt.topic || '一般的な話題'}
-- トーン：${prompt.mood || '明るい'}
-
-以下のような表現は避けてください：
-- 過度に形式的な言い回し
-- 不自然な翻訳調の日本語
-- 過度な敬語`;
-
-    const response = await fetch(`${this.baseURL}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${this.config.apiKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://github.com/yourusername/xbot',
-        'X-Title': 'XBot',
-      },
-      body: JSON.stringify({
-        model: this.config.model,
-        temperature: this.config.temperature,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          {
-            role: 'user',
-            content: '今の気分で自然なツイートを1つ生成してください',
-          },
-        ],
-      }),
-    });
-
-    const data = (await response.json()) as OpenRouterResponse;
-
-    // レスポンスIDを出力
-    console.log('\nレスポンス情報:');
-    console.log(`- ID: ${data.id}`);
-
-    // 生成情報を取得して表示
-    await this.logGenerationDetails(data.id);
-
-    return data.choices[0].message.content || 'ツイートの生成に失敗しました';
   }
 }

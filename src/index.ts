@@ -1,15 +1,25 @@
-import { config } from '../config/config';
-import { AI } from './ai';
-import { Tweet } from './tweet';
+import { config, openrouterConfig } from './config/config';
+import { OpenRouterService } from './services/openrouter';
+import { TwitterService } from './services/twitter';
 
-async function main() {
-  const ai = new AI();
-  const tweet = new Tweet();
+export async function run() {
+  const openrouter = new OpenRouterService(openrouterConfig);
+  const twitter = new TwitterService(config);
 
-  const prompt = '今日の気分はどうですか？';
-  const generatedTweet = await ai.generateTweet(prompt);
+  try {
+    const tweet = await openrouter.generateTweet({
+      topic: '技術',
+      mood: '楽しい',
+    });
 
-  await tweet.postTweet(generatedTweet);
+    await twitter.tweet(tweet);
+    console.log('ツイートの投稿が完了しました');
+  } catch (error) {
+    console.error('エラーが発生しました:', error);
+    process.exit(1);
+  }
 }
 
-main().catch(console.error);
+if (require.main === module) {
+  run().catch(console.error);
+}

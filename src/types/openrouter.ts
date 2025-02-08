@@ -70,6 +70,26 @@ export interface GenerationData {
   num_search_results: number;
 }
 
+export interface OpenRouterCompletion {
+  id: string;
+  choices: Array<{
+    message: {
+      content: string;
+    };
+  }>;
+}
+
 export interface GenerationResponse {
-  data: GenerationData;
+  data: {
+    id: string;
+    model: string;
+    provider_name: string;
+    total_cost: number;
+    generation_time?: number;
+    tokens_prompt?: number;
+    tokens_completion?: number;
+    cache_discount?: number;
+    finish_reason?: string;
+    native_finish_reason?: string;
+  };
 }
