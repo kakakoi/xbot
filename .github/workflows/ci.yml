@@ -20,13 +20,12 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install  # ciからinstallに変更
-
-      - name: Check Biome installation
-        run: biome --version
+        run: |
+          npm install
+          npx biome --version  # グローバルインストールせず、npxで実行
 
       - name: Lint
-        run: npm run lint
+        run: npx biome ci .   # npxを使用
 
       - name: Test
         run: npm test
