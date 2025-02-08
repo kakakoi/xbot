@@ -8,7 +8,7 @@ async function generateAndTweet() {
 
   try {
     const tweet = await openrouter.generateTweet({
-      topic: '日本株投資',
+      topic: '先週の日本株で目立った銘柄3つ予想',
       mood: '楽しい',
     });
 

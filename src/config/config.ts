@@ -12,7 +12,9 @@ function getRequiredEnvVar(key: string): string {
 
 export const openrouterConfig: OpenRouterConfig = {
   apiKey: getRequiredEnvVar('OPENROUTER_API_KEY'),
-  model: process.env.OPENROUTER_MODEL || 'gryphe/mythomax-l2-13b',
+  model:
+    process.env.OPENROUTER_MODEL ||
+    'google/gemini-2.0-flash-lite-preview-02-05:free',
   temperature: Number(process.env.OPENROUTER_TEMPERATURE) || 0.7,
 };
 
