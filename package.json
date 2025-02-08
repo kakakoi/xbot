@@ -6,11 +6,10 @@
   "scripts": {
     "start": "ts-node src/index.ts",
     "build": "tsc",
-    "lint": "biome check .",
-    "lint:fix": "biome check --write .",
-    "format": "biome format .",
-    "format:fix": "biome format --write .",
-    "postinstall": "simple-git-hooks",
+    "lint": "npx biome ci src/",
+    "lint:fix": "npx biome check --apply src/",
+    "format": "npx biome format src/",
+    "format:fix": "npx biome format --write src/",
     "prepare": "simple-git-hooks",
     "lint-staged": "lint-staged",
     "deps:check": "depcruise src --config .dependency-cruiser.js",
@@ -27,7 +26,7 @@
     "twitter-api-v2": "^1.19.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
+    "@biomejs/biome": "latest",
     "dependency-cruiser": "^16.9.0",
     "lint-staged": "^15.4.3",
     "simple-git-hooks": "^2.11.1",
