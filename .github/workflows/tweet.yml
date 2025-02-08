@@ -7,13 +7,13 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: 'ブランチ名を指定'
+        description: '実行するブランチを指定'
         required: true
-        default: 'main'
+        default: 'development'
         type: choice
         options:
-          - main
-          - development
+          - development  # 開発環境（デフォルト）
+          - main        # 本番環境
 
 jobs:
   tweet:
@@ -23,7 +23,7 @@ jobs:
     permissions:
       contents: read
 
-    # スケジュール実行時はmainブランチ、手動実行時は指定ブランチ
+    # スケジュール実行時はmain、手動実行時は指定ブランチ
     if: |
       (github.event_name == 'schedule' && github.ref == 'refs/heads/main') ||
       (github.event_name == 'workflow_dispatch' && github.event.inputs.branch != '')
