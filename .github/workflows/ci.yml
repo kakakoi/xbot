@@ -21,11 +21,14 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm install
-          npx biome --version  # グローバルインストールせず、npxで実行
+          npm ci
+          npm install -g @biomejs/biome@1.5.3
 
       - name: Lint
-        run: npx biome ci .   # npxを使用
+        run: |
+          echo "Biome version:"
+          biome --version
+          biome lint src/
 
       - name: Test
         run: npm test
