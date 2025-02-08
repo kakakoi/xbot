@@ -39,6 +39,6 @@
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged"
   },
-  "author": "Your Name",
+  "author": "kakakoi",
   "license": "MIT"
 }
