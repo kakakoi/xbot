@@ -3,15 +3,15 @@ import type {
   OpenRouterCompletion,
   OpenRouterConfig,
   TweetGenerationPrompt,
-} from '../types/openrouter';
-import { BaseService } from './base';
+} from "../types/openrouter";
+import { BaseService } from "./base";
 
 export class OpenRouterService extends BaseService {
   private baseURL: string;
 
   constructor(private config: OpenRouterConfig) {
     super();
-    this.baseURL = 'https://openrouter.ai/api/v1';
+    this.baseURL = "https://openrouter.ai/api/v1";
   }
 
   async generateTweet(prompt: TweetGenerationPrompt): Promise<string> {
@@ -26,8 +26,8 @@ export class OpenRouterService extends BaseService {
 - 自然な日本語で書く
 - カジュアルでフレンドリーな口調を使う
 - 280文字以内で書く
-- トピック：${prompt.topic || '一般的な話題'}
-- トーン：${prompt.mood || '明るい'}`;
+- トピック：${prompt.topic || "一般的な話題"}
+- トーン：${prompt.mood || "明るい"}`;
   }
 
   private async createCompletion(
@@ -35,21 +35,21 @@ export class OpenRouterService extends BaseService {
   ): Promise<OpenRouterCompletion> {
     const systemPrompt = this.createSystemPrompt(prompt);
     const response = await fetch(`${this.baseURL}/chat/completions`, {
-      method: 'POST',
+      method: "POST",
       headers: {
         Authorization: `Bearer ${this.config.apiKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://github.com/yourusername/xbot',
-        'X-Title': 'XBot',
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://github.com/yourusername/xbot",
+        "X-Title": "XBot",
       },
       body: JSON.stringify({
         model: this.config.model,
         temperature: this.config.temperature,
         messages: [
-          { role: 'system', content: systemPrompt },
+          { role: "system", content: systemPrompt },
           {
-            role: 'user',
-            content: '今の気分で自然なツイートを1つ生成してください',
+            role: "user",
+            content: "今の気分で自然なツイートを1つ生成してください",
           },
         ],
       }),
@@ -75,14 +75,14 @@ export class OpenRouterService extends BaseService {
         }
 
         const response = await fetch(url, {
-          method: 'GET',
+          method: "GET",
           headers: {
             Authorization: `Bearer ${this.config.apiKey}`,
           },
         });
 
         if (response.status === 404 && attempt < retries) {
-          console.log('生成情報がまだ利用できません。リトライします。');
+          console.log("生成情報がまだ利用できません。リトライします。");
           continue;
         }
 
@@ -102,12 +102,12 @@ export class OpenRouterService extends BaseService {
       }
     }
 
-    throw new Error('生成情報の取得に失敗: リトライ回数超過');
+    throw new Error("生成情報の取得に失敗: リトライ回数超過");
   }
 
-  private async logGenerationDetails(data: GenerationResponse['data']) {
+  private async logGenerationDetails(data: GenerationResponse["data"]) {
     try {
-      console.log('\n生成詳細情報:');
+      console.log("\n生成詳細情報:");
 
       // 必須項目の存在確認
       if (data.model && data.provider_name) {
@@ -118,7 +118,7 @@ export class OpenRouterService extends BaseService {
       }
 
       if (data.tokens_prompt || data.tokens_completion) {
-        console.log('\nトークン情報:');
+        console.log("\nトークン情報:");
         if (data.tokens_prompt) {
           console.log(`- プロンプト: ${data.tokens_prompt}トークン`);
         }
@@ -128,7 +128,7 @@ export class OpenRouterService extends BaseService {
       }
 
       if (data.total_cost !== undefined) {
-        console.log('\nコスト情報:');
+        console.log("\nコスト情報:");
         console.log(`- 合計コスト: $${data.total_cost.toFixed(6)}`);
         if (data.cache_discount && data.cache_discount > 0) {
           console.log(
@@ -142,13 +142,13 @@ export class OpenRouterService extends BaseService {
         data.native_finish_reason &&
         data.finish_reason !== data.native_finish_reason
       ) {
-        console.log('\n完了理由:');
+        console.log("\n完了理由:");
         console.log(`- OpenRouter: ${data.finish_reason}`);
         console.log(`- プロバイダー: ${data.native_finish_reason}`);
       }
     } catch (error) {
       console.error(
-        '生成情報の取得に失敗:',
+        "生成情報の取得に失敗:",
         error instanceof Error ? error.message : String(error),
       );
     }

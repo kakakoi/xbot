@@ -1,3 +1,6 @@
 {
-  "*.{js,ts}": ["biome format --write", "biome check --write"]
+  "src/**/*.{js,ts}": [
+    "biome format",
+    "biome check"
+  ]
 }

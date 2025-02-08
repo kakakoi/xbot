@@ -5,6 +5,6 @@ export class ConfigError extends Error {
     public readonly value?: unknown,
   ) {
     super(message);
-    this.name = 'ConfigError';
+    this.name = "ConfigError";
   }
 }

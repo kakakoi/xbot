@@ -6,6 +6,6 @@ export class APIError extends Error {
     public details?: unknown,
   ) {
     super(message);
-    this.name = 'APIError';
+    this.name = "APIError";
   }
 }

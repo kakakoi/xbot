@@ -1,5 +1,9 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.4.1/schema.json",
+  "files": {
+    "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"],
+    "ignore": ["node_modules", "dist"]
+  },
   "organizeImports": {
     "enabled": true
   },
@@ -11,14 +15,8 @@
   },
   "formatter": {
     "enabled": true,
-    "formatWithErrors": false,
     "indentStyle": "space",
     "indentWidth": 2,
     "lineWidth": 80
-  },
-  "javascript": {
-    "formatter": {
-      "quoteStyle": "single"
-    }
   }
 }

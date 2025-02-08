@@ -12,7 +12,11 @@
     "format:fix": "biome format --write .",
     "postinstall": "simple-git-hooks",
     "prepare": "simple-git-hooks",
-    "lint-staged": "lint-staged"
+    "lint-staged": "lint-staged",
+    "deps:check": "depcruise src --config .dependency-cruiser.js",
+    "deps:graph": "depcruise src --include-only '^src' --config .dependency-cruiser.js --output-type dot | dot -T svg > dependency-graph.svg",
+    "tweet": "ts-node src/index.ts tweet",
+    "analyze": "ts-node src/index.ts analyze"
   },
   "dependencies": {
     "dotenv": "^16.4.7",
@@ -20,6 +24,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
+    "dependency-cruiser": "^16.9.0",
     "lint-staged": "^15.4.3",
     "simple-git-hooks": "^2.11.1",
     "ts-node": "^10.9.2",

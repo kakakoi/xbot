@@ -1,11 +1,11 @@
-import { APIError } from '../types/error';
+import { APIError } from "../types/error";
 
 export abstract class BaseService {
   protected async handleResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
       const text = await response.text();
       throw new APIError(
-        'API request failed',
+        "API request failed",
         response.status,
         response.statusText,
         text,

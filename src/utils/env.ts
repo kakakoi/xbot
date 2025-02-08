@@ -1,12 +1,12 @@
-import 'dotenv/config'; // 最初に.envをロード
-import { ConfigError } from '../errors/ConfigError';
+import "dotenv/config"; // 最初に.envをロード
+import { ConfigError } from "../errors/ConfigError";
 
 export function validateEnv(requiredKeys: string[]): void {
   const missing = requiredKeys.filter((key) => !process.env[key]);
   if (missing.length > 0) {
     throw new ConfigError(
-      '必要な環境変数が設定されていません',
-      'MISSING_ENV',
+      "必要な環境変数が設定されていません",
+      "MISSING_ENV",
       missing,
     );
   }

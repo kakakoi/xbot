@@ -1,25 +1,39 @@
-import { config, openrouterConfig } from './config/config';
-import { OpenRouterService } from './services/openrouter';
-import { TwitterService } from './services/twitter';
+import { generateAndTweet } from "./examples/openrouter-tweet";
+import { findUnusedFiles } from "./utils/analyzeImports";
 
-export async function run() {
-  const openrouter = new OpenRouterService(openrouterConfig);
-  const twitter = new TwitterService(config);
+async function main() {
+  const command = process.argv[2];
 
-  try {
-    const tweet = await openrouter.generateTweet({
-      topic: '技術',
-      mood: '楽しい',
-    });
-
-    await twitter.tweet(tweet);
-    console.log('ツイートの投稿が完了しました');
-  } catch (error) {
-    console.error('エラーが発生しました:', error);
-    process.exit(1);
+  switch (command) {
+    case "tweet":
+      await generateAndTweet();
+      break;
+    case "analyze": {
+      const unusedFiles = findUnusedFiles();
+      if (unusedFiles.length > 0) {
+        console.log("未使用のファイルが見つかりました:");
+        for (const file of unusedFiles) {
+          console.log(`- ${file}`);
+        }
+        process.exit(1);
+      }
+      console.log("未使用のファイルは見つかりませんでした。");
+      break;
+    }
+    default:
+      console.error("使用方法: npm start <command>");
+      console.error("利用可能なコマンド:");
+      console.error("  tweet   - AIでツイートを生成して投稿");
+      console.error("  analyze - 未使用ファイルを分析");
+      process.exit(1);
   }
 }
 
 if (require.main === module) {
-  run().catch(console.error);
+  main().catch((error) => {
+    console.error("エラーが発生しました:", error);
+    process.exit(1);
+  });
 }
+
+export { generateAndTweet, findUnusedFiles };
