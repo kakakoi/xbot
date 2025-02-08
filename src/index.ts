@@ -1,4 +1,4 @@
-import { generateAndTweet } from "./examples/openrouter-tweet";
+import { tweetCommand } from "./commands/tweet";
 import { findUnusedFiles } from "./utils/analyzeImports";
 
 async function main() {
@@ -6,7 +6,7 @@ async function main() {
 
   switch (command) {
     case "tweet":
-      await generateAndTweet();
+      await tweetCommand();
       break;
     case "analyze": {
       const unusedFiles = findUnusedFiles();
@@ -36,4 +36,4 @@ if (require.main === module) {
   });
 }
 
-export { generateAndTweet, findUnusedFiles };
+export { tweetCommand, findUnusedFiles };
