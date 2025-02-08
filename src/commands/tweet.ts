@@ -3,7 +3,7 @@ import { ConfigError } from "../errors/ConfigError";
 import { OpenRouterService } from "../services/openrouter";
 import { TwitterApiRateLimitError, sendTweet } from "../services/twitter";
 
-export async function tweetCommand() {
+export async function tweetCommand(options: { dryRun?: boolean } = {}) {
   try {
     const openrouter = new OpenRouterService(openrouterConfig);
     const tweet = await openrouter.generateTweet({
@@ -12,6 +12,11 @@ export async function tweetCommand() {
     });
 
     console.log("生成されたツイート:", tweet);
+
+    if (options.dryRun) {
+      console.log("[Dry Run] 実際のツイートは送信されません");
+      return;
+    }
 
     try {
       await sendTweet(tweet);

@@ -16,6 +16,7 @@
     "deps:check": "depcruise src --config .dependency-cruiser.js",
     "deps:graph": "depcruise src --include-only '^src' --config .dependency-cruiser.js --output-type dot | dot -T svg > dependency-graph.svg",
     "tweet": "ts-node src/index.ts tweet",
+    "tweet:test": "ts-node src/index.ts tweet --dry-run",
     "analyze": "ts-node src/index.ts analyze",
     "test": "jest",
     "test:watch": "jest --watch",

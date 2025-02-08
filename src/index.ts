@@ -3,10 +3,11 @@ import { findUnusedFiles } from "./utils/analyzeImports";
 
 async function main() {
   const command = process.argv[2];
+  const isDryRun = process.argv.includes("--dry-run");
 
   switch (command) {
     case "tweet":
-      await tweetCommand();
+      await tweetCommand({ dryRun: isDryRun });
       break;
     case "analyze": {
       const unusedFiles = findUnusedFiles();
