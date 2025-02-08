@@ -6,10 +6,11 @@ export interface OpenRouterConfig {
 }
 
 export interface TweetGenerationPrompt {
-  topic?: string;
-  mood?: string;
+  topic: string;
+  mood: string;
   length?: number;
   hashtags?: string[];
+  context?: string; // 追加のコンテキスト情報
 }
 
 export interface OpenRouterKeyData {
