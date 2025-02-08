@@ -1,0 +1,54 @@
+name: Tweet Generator
+
+on:
+  schedule:
+    # 日本時間 午前6時 (UTC 21:00)に毎日実行
+    - cron: '0 21 * * *'
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'ブランチ名を指定'
+        required: true
+        default: 'main'
+        type: choice
+        options:
+          - main
+          - development
+
+jobs:
+  tweet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # GitHub Secretsにアクセスするための最小限の権限
+    permissions:
+      contents: read
+
+    # スケジュール実行時はmainブランチ、手動実行時は指定ブランチ
+    if: |
+      (github.event_name == 'schedule' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.branch != '')
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'schedule' && 'main' || github.event.inputs.branch }}
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate and Post Tweet
+        run: npm run tweet
+        env:
+          TWITTER_API_KEY: ${{ secrets.TWITTER_API_KEY }}
+          TWITTER_API_SECRET_KEY: ${{ secrets.TWITTER_API_SECRET_KEY }}
+          TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+          TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_MODEL: ${{ secrets.OPENROUTER_MODEL }}
+          OPENROUTER_TEMPERATURE: ${{ secrets.OPENROUTER_TEMPERATURE }}

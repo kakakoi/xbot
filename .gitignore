@@ -19,6 +19,11 @@ yarn-error.log*
 dist/
 build/
 
+# Test coverage
+coverage/
+.nyc_output/
+junit.xml
+
 # IDE and editor files
 .idea/
 .vscode/
@@ -28,3 +33,8 @@ build/
 
 # TypeScript
 *.tsbuildinfo
+
+# Jest
+jest-report/
+test-results/
+jest.config.js.map
