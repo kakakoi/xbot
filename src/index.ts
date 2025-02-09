@@ -1,3 +1,4 @@
+import { newsCommand } from "./commands/news";
 import { tweetCommand } from "./commands/tweet";
 import { findUnusedFiles } from "./utils/analyzeImports";
 
@@ -8,6 +9,9 @@ async function main() {
   switch (command) {
     case "tweet":
       await tweetCommand({ dryRun: isDryRun });
+      break;
+    case "news":
+      await newsCommand({ dryRun: isDryRun });
       break;
     case "analyze": {
       const unusedFiles = findUnusedFiles();
@@ -25,6 +29,7 @@ async function main() {
       console.error("使用方法: npm start <command>");
       console.error("利用可能なコマンド:");
       console.error("  tweet   - AIでツイートを生成して投稿");
+      console.error("  news    - ニュース記事をAIコメント付きで投稿");
       console.error("  analyze - 未使用ファイルを分析");
       process.exit(1);
   }
@@ -37,4 +42,4 @@ if (require.main === module) {
   });
 }
 
-export { tweetCommand, findUnusedFiles };
+export { tweetCommand, newsCommand, findUnusedFiles };

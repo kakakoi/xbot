@@ -8,12 +8,12 @@ on:
     inputs:
       branch:
         description: '実行するブランチを指定'
-        required: true
-        default: 'development'
+        required: false
+        default: 'main'
         type: choice
         options:
-          - development  # 開発環境（デフォルト）
-          - main        # 本番環境
+          - development  # 開発環境
+          - main        # 本番環境（デフォルト）
 
 jobs:
   tweet:
@@ -23,15 +23,10 @@ jobs:
     permissions:
       contents: read
 
-    # スケジュール実行時はmain、手動実行時は指定ブランチ
-    if: |
-      (github.event_name == 'schedule' && github.ref == 'refs/heads/main') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.branch != '')
-
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'schedule' && 'main' || github.event.inputs.branch }}
+          ref: ${{ github.event.inputs.branch || 'main' }}
       
       - name: Setup Node.js
         uses: actions/setup-node@v4

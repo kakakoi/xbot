@@ -1,5 +1,7 @@
 import { openrouterConfig } from "../config/config";
 import { ConfigError } from "../errors/ConfigError";
+import { stockAnalysisPrompts } from "../prompts/stockAnalysis";
+import { weeklyPredictionPrompts } from "../prompts/weeklyPrediction";
 import { runPython } from "../runPython";
 import { OpenRouterService } from "../services/openrouter";
 import { TwitterApiRateLimitError, sendTweet } from "../services/twitter";
@@ -21,6 +23,19 @@ interface StockAnalysis {
   error?: string;
 }
 
+function getWeatherEmoji(growthRate: number, per: number): string {
+  // 成長率を整数に
+  const roundedGrowth = Math.round(growthRate);
+
+  if (roundedGrowth > per) {
+    return "☀️"; // 成長率がPERより高い場合は晴れ
+  }
+  if (roundedGrowth === per) {
+    return "🌤️"; // 同じ場合は晴れ時々曇り
+  }
+  return "☁️"; // 成長率がPERより低い場合は曇り
+}
+
 export async function tweetCommand(options: { dryRun?: boolean } = {}) {
   try {
     const dateRange = getLastThursdayToSunday();
@@ -28,15 +43,9 @@ export async function tweetCommand(options: { dryRun?: boolean } = {}) {
     console.log("直近の日曜日から木曜日までの日付:", dateRangeText);
 
     const openrouter = new OpenRouterService(openrouterConfig);
-    const tweet = await openrouter.generateTweet({
-      topic:
-        "次の月曜日に買って金曜日までに株価が上昇しそうな日本株銘柄を1つ予想",
-      mood: "分析的",
-      context: `${dateRangeText}までに出た材料を考慮して、以下の点を含めて予想してください：
-- 具体的な銘柄コードと会社名
-- 直近の材料や決算内容
-- 市場環境との関連性`,
-    });
+    const tweet = await openrouter.generateTweet(
+      weeklyPredictionPrompts.stockPick(dateRangeText),
+    );
 
     console.log("生成されたツイート:", tweet);
 
@@ -52,8 +61,14 @@ export async function tweetCommand(options: { dryRun?: boolean } = {}) {
         if (analysis.operatingIncomeGrowth !== undefined) {
           const analysisLines = [];
 
+          // 営業利益成長率とPERを比較して天気マークを追加
+          const weatherEmoji =
+            analysis.per !== undefined
+              ? getWeatherEmoji(analysis.operatingIncomeGrowth, analysis.per)
+              : "";
+
           // 営業利益成長率
-          const growthText = `営利${analysis.yearsCount}年平均 ${analysis.operatingIncomeGrowth >= 0 ? "+" : ""}${analysis.operatingIncomeGrowth.toFixed(2)}%`;
+          const growthText = `分析:${weatherEmoji}\n営利成長${analysis.yearsCount}年平均 ${analysis.operatingIncomeGrowth >= 0 ? "+" : ""}${analysis.operatingIncomeGrowth.toFixed(2)}%`;
           analysisLines.push(growthText);
 
           // PER
