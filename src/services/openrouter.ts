@@ -26,6 +26,8 @@ export class OpenRouterService extends BaseService {
 - すべての文章を日本語で書く（英単語や他の言語を混ぜない）
 - ただし、GDP、ETF、FOMC などの経済略語は使用してよい
 - 具体的な企業名や銘柄コードを必ず含める
+- 略称（USS, ORCL, TSLA など）が複数の企業に該当する場合は、適切な企業を識別する。
+   - 例: 「USS」は 日本のUSS（4732）と米国のU.S. Steel のどちらかを確認する。
 - 事実のみを簡潔に伝える
 - 分析的かつ論理的な表現を使用する
 - 感情的・フレンドリーな表現を避ける
@@ -34,6 +36,7 @@ export class OpenRouterService extends BaseService {
 - 結論を明確にし、推測ではなく根拠に基づく予測を行う
 - 日付や具体的な数字を含めず、「最近」「直近」など雰囲気で表現する
 - 踊り字（々）は使用しない
+- twetterで投稿するので、マークダウン形式の強調などは使用しない
 - トピック：${prompt.topic || "一般的な話題"}
 - トーン：${prompt.mood || "分析的"}
 - 追加のコンテキスト：${prompt.context || "なし"}`;

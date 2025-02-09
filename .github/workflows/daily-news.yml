@@ -1,0 +1,46 @@
+name: Daily News Tweet
+
+on:
+  schedule:
+    - cron: '0 23 * * *'  # UTC 23:00 = JST 08:00
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: '実行するブランチを指定'
+        required: false
+        default: 'main'
+        type: choice
+        options:
+            - development  # 開発環境
+            - main        # 本番環境（デフォルト）
+
+jobs:
+  tweet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run news tweet
+        run: npm run news
+        env:
+            TWITTER_API_KEY: ${{ secrets.TWITTER_API_KEY }}
+            TWITTER_API_SECRET_KEY: ${{ secrets.TWITTER_API_SECRET_KEY }}
+            TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+            TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+            OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+            OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL }}
+            OPENROUTER_TEMPERATURE: ${{ vars.OPENROUTER_TEMPERATURE }}
