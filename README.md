@@ -11,7 +11,7 @@ AIを使用して日本株に関するツイートを自動生成・投稿する
 
 ## 必要要件
 
-- Node.js 18以上
+- Node.js 20以上
 - npm
 - Twitter Developer Account
 - OpenRouter API Key

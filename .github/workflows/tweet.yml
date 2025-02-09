@@ -2,8 +2,8 @@ name: Tweet Generator
 
 on:
   schedule:
-    # 日本時間 午前6時 (UTC 21:00)に毎日実行
-    - cron: '0 21 * * *'
+    # 毎週月曜日の朝6時（JST）= 日曜日の21:00（UTC）
+    - cron: '0 21 * * 0'
   workflow_dispatch:
     inputs:
       branch:
@@ -36,7 +36,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
