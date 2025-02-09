@@ -1,11 +1,10 @@
 import { openrouterConfig } from "../config/config";
 import { ConfigError } from "../errors/ConfigError";
 import { stockAnalysisPrompts } from "../prompts/stockAnalysis";
-import { weeklyPredictionPrompts } from "../prompts/weeklyPrediction";
+import type { PromptConfig } from "../prompts/types";
 import { runPython } from "../runPython";
 import { OpenRouterService } from "../services/openrouter";
 import { TwitterApiRateLimitError, sendTweet } from "../services/twitter";
-import { formatDateRange, getLastThursdayToSunday } from "../utils/dateUtils";
 
 // 銘柄コードを抽出する関数を追加
 const extractStockCodes = (text: string): string[] => {
@@ -36,16 +35,14 @@ function getWeatherEmoji(growthRate: number, per: number): string {
   return "☁️"; // 成長率がPERより低い場合は曇り
 }
 
-export async function tweetCommand(options: { dryRun?: boolean } = {}) {
+export async function tweetCommand(options: {
+  dryRun?: boolean;
+  prompt: () => PromptConfig;
+  dateRange?: { start: Date; end: Date };
+}) {
   try {
-    const dateRange = getLastThursdayToSunday();
-    const dateRangeText = formatDateRange(dateRange.start, dateRange.end);
-    console.log("直近の日曜日から木曜日までの日付:", dateRangeText);
-
     const openrouter = new OpenRouterService(openrouterConfig);
-    const tweet = await openrouter.generateTweet(
-      weeklyPredictionPrompts.stockPick(dateRangeText),
-    );
+    const tweet = await openrouter.generateTweet(options.prompt());
 
     console.log("生成されたツイート:", tweet);
 
@@ -68,7 +65,7 @@ export async function tweetCommand(options: { dryRun?: boolean } = {}) {
               : "";
 
           // 営業利益成長率
-          const growthText = `分析:${weatherEmoji}\n営利成長${analysis.yearsCount}年平均 ${analysis.operatingIncomeGrowth >= 0 ? "+" : ""}${analysis.operatingIncomeGrowth.toFixed(2)}%`;
+          const growthText = `分析(${code}):${weatherEmoji}\n営利成長${analysis.yearsCount}年平均 ${analysis.operatingIncomeGrowth >= 0 ? "+" : ""}${analysis.operatingIncomeGrowth.toFixed(2)}%`;
           analysisLines.push(growthText);
 
           // PER
@@ -95,11 +92,10 @@ export async function tweetCommand(options: { dryRun?: boolean } = {}) {
 
     // 分析情報を追加してツイート
     const finalTweet = tweet + analysisInfo;
-    console.log("最終的なツイート内容:", finalTweet); // ここにログを追加
+    console.log("最終的なツイート内容:", finalTweet);
 
     if (options.dryRun) {
       console.log("[Dry Run] 実際のツイートは送信されません");
-      // 最終的なツイート内容を表示
       console.log("最終的なツイート内容:", finalTweet);
       return;
     }

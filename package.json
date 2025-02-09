@@ -23,7 +23,11 @@
     "python": "ts-node src/runPython.ts",
     "postinstall": "bash scripts/install-python-deps.sh",
     "news:test": "ts-node src/index.ts news --dry-run",
-    "news": "ts-node src/index.ts news"
+    "news": "ts-node src/index.ts news",
+    "weekly:test": "ts-node src/index.ts weekly --dry-run",
+    "weekly": "ts-node src/index.ts weekly",
+    "sector:test": "ts-node src/index.ts sector --dry-run",
+    "sector": "ts-node src/index.ts sector"
   },
   "dependencies": {
     "@types/xml2js": "^0.4.14",
@@ -46,5 +50,12 @@
     "pre-commit": "npx lint-staged"
   },
   "author": "kakakoi",
-  "license": "MIT"
+  "license": "MIT",
+  "lint-staged": {
+    "*.{js,ts}": [
+      "npx biome check --write",
+      "npx biome format --write",
+      "npx biome check --apply-unsafe"
+    ]
+  }
 }

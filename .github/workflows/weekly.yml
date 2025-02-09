@@ -1,4 +1,4 @@
-name: Tweet Generator
+name: Weekly Stock Prediction
 
 on:
   schedule:
@@ -16,7 +16,7 @@ on:
           - main        # 本番環境（デフォルト）
 
 jobs:
-  tweet:
+  weekly-prediction:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     # GitHub Secretsにアクセスするための最小限の権限
@@ -37,8 +37,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Generate and Post Tweet
-        run: npm run tweet
+      - name: Generate and Post Weekly Prediction
+        run: npm run weekly
         env:
           TWITTER_API_KEY: ${{ secrets.TWITTER_API_KEY }}
           TWITTER_API_SECRET_KEY: ${{ secrets.TWITTER_API_SECRET_KEY }}
@@ -46,4 +46,4 @@ jobs:
           TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL }}
-          OPENROUTER_TEMPERATURE: ${{ vars.OPENROUTER_TEMPERATURE }}
+          OPENROUTER_TEMPERATURE: ${{ vars.OPENROUTER_TEMPERATURE }} 

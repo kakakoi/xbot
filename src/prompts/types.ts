@@ -3,3 +3,5 @@ export interface PromptConfig {
   mood: string;
   context: string;
 }
+
+export type PromptFunction = (params?: string) => PromptConfig;
