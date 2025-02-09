@@ -1,6 +1,6 @@
 import { openrouterConfig } from "../config/config";
+import { MAX_TWEET_LENGTH } from "../constants"; // 定数をインポート
 import { ConfigError } from "../errors/ConfigError";
-import { stockAnalysisPrompts } from "../prompts/stockAnalysis";
 import type { PromptConfig } from "../prompts/types";
 import { runPython } from "../runPython";
 import { OpenRouterService } from "../services/openrouter";
@@ -55,22 +55,25 @@ export async function tweetCommand(options: {
       for (const code of stockCodes) {
         const analysis = (await runPython(code)) as StockAnalysis;
         console.log(`銘柄${code}の分析結果:`, analysis);
-        if (analysis.operatingIncomeGrowth !== undefined) {
+        if (
+          analysis.operatingIncomeGrowth !== undefined &&
+          analysis.operatingIncomeGrowth !== null
+        ) {
           const analysisLines = [];
 
           // 営業利益成長率とPERを比較して天気マークを追加
           const weatherEmoji =
-            analysis.per !== undefined
+            analysis.per !== undefined && analysis.per !== null
               ? getWeatherEmoji(analysis.operatingIncomeGrowth, analysis.per)
               : "";
 
           // 営業利益成長率
-          const growthText = `分析(${code}):${weatherEmoji}\n営利成長${analysis.yearsCount}年平均 ${analysis.operatingIncomeGrowth >= 0 ? "+" : ""}${analysis.operatingIncomeGrowth.toFixed(2)}%`;
+          const growthText = `分析(${code}):${weatherEmoji}\n営利成長${analysis.yearsCount}年平均 +${Math.floor(analysis.operatingIncomeGrowth)}%`;
           analysisLines.push(growthText);
 
           // PER
-          if (analysis.per !== undefined) {
-            analysisLines.push(`PER ${analysis.per.toFixed(2)}倍`);
+          if (analysis.per !== undefined && analysis.per !== null) {
+            analysisLines.push(`PER ${Math.floor(analysis.per)}倍`);
           }
 
           analysisInfo = `\n${analysisLines.join("\n")}`;
@@ -93,6 +96,14 @@ export async function tweetCommand(options: {
     // 分析情報を追加してツイート
     const finalTweet = tweet + analysisInfo;
     console.log("最終的なツイート内容:", finalTweet);
+
+    // 文字数を確認
+    console.log("ツイートの文字数:", finalTweet.length);
+    if (finalTweet.length > MAX_TWEET_LENGTH) {
+      throw new Error(
+        `ツイート内容が${MAX_TWEET_LENGTH}文字を超えています: ${finalTweet.length}文字`,
+      );
+    }
 
     if (options.dryRun) {
       console.log("[Dry Run] 実際のツイートは送信されません");
@@ -118,7 +129,37 @@ export async function tweetCommand(options: {
         console.error("詳細:", error.value);
       }
     } else {
-      console.error("Twitter APIエラー:", error);
+      console.error("=== Twitter APIエラーの詳細 ===");
+      console.error("エラーの型:", typeof error);
+      console.error("エラーの構造:", JSON.stringify(error, null, 2));
+      console.error("エラーのプロパティ一覧:", Object.keys(error as object));
+      console.error("================================");
+
+      const err = error as {
+        rateLimit?: {
+          limit: number;
+          remaining: number;
+          reset: number;
+        };
+        data?: {
+          detail: string;
+          title: string;
+          type: string;
+          reason: string;
+        };
+      };
+
+      if (err.data?.detail) {
+        console.error("Twitter APIエラー:", err.data.title);
+        console.error("詳細:", err.data.detail);
+        if (err.data.reason === "client-not-enrolled") {
+          console.error(
+            "API権限が不足しています。Twitter Developer Portalで権限を確認してください。",
+          );
+        }
+      } else {
+        console.error("Twitter APIエラー:", error);
+      }
     }
     process.exit(1);
   }

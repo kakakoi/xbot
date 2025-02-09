@@ -16,15 +16,24 @@ validateEnv([
   "OPENROUTER_API_KEY",
 ]);
 
-export const openrouterConfig: OpenRouterConfig = {
-  apiKey: getRequiredEnv("OPENROUTER_API_KEY"),
-  model: getOptionalEnv("OPENROUTER_MODEL", "gryphe/mythomax-l2-13b"),
-  temperature: getNumericEnv("OPENROUTER_TEMPERATURE", 0.7),
+interface Config {
+  twitter: TwitterConfig;
+  openrouter: OpenRouterConfig;
+}
+
+export const config: Config = {
+  twitter: {
+    apiKey: process.env.TWITTER_API_KEY || "",
+    apiSecretKey: process.env.TWITTER_API_SECRET_KEY || "",
+    accessToken: process.env.TWITTER_ACCESS_TOKEN || "",
+    accessTokenSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET || "",
+  },
+  openrouter: {
+    apiKey: process.env.OPENROUTER_API_KEY || "",
+    model: process.env.OPENROUTER_MODEL || "openai/gpt-4o-mini",
+    temperature: Number(process.env.OPENROUTER_TEMPERATURE) || 0.7,
+  },
 };
 
-export const config: TwitterConfig = {
-  apiKey: getRequiredEnv("TWITTER_API_KEY"),
-  apiSecretKey: getRequiredEnv("TWITTER_API_SECRET_KEY"),
-  accessToken: getRequiredEnv("TWITTER_ACCESS_TOKEN"),
-  accessTokenSecret: getRequiredEnv("TWITTER_ACCESS_TOKEN_SECRET"),
-};
+// openrouterConfigを別途エクスポート
+export const openrouterConfig: OpenRouterConfig = config.openrouter;
