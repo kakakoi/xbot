@@ -11,8 +11,8 @@ on:
         default: 'main'
         type: choice
         options:
-            - development  # 開発環境
-            - main        # 本番環境（デフォルト）
+          - development  # 開発環境
+          - main        # 本番環境（デフォルト）
 
 jobs:
   tweet:
