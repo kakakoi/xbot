@@ -47,8 +47,6 @@ export class OpenRouterService extends BaseService {
       headers: {
         Authorization: `Bearer ${this.config.apiKey}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://github.com/yourusername/xbot",
-        "X-Title": "XBot",
       },
       body: JSON.stringify({
         model: this.config.model,

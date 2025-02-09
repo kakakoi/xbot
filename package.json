@@ -6,8 +6,8 @@
   "scripts": {
     "start": "ts-node src/index.ts",
     "build": "tsc",
-    "lint": "npx biome ci src/",
-    "lint:fix": "npx biome check --apply src/",
+    "lint": "npx biome check src/",
+    "lint:fix": "npx biome check --write src/",
     "format": "npx biome format src/",
     "format:fix": "npx biome format --write src/",
     "prepare": "simple-git-hooks",
@@ -39,6 +39,6 @@
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged"
   },
-  "author": "Your Name",
+  "author": "kakakoi",
   "license": "MIT"
 }
