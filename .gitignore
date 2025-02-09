@@ -37,3 +37,8 @@ junit.xml
 jest-report/
 test-results/
 jest.config.js.map
+
+# Python virtual environment
+.venv/
+__pycache__/
+*.pyc
