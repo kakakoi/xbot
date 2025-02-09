@@ -54,10 +54,6 @@ def analyze_stock_code(code=None):
                 "yearsCount": years_count,
                 "per": float(per) if per is not None and is_valid_number(per) else None
             }
-            # デバッグ出力を追加
-            print(f"DEBUG: Result before JSON encoding: {result}", file=sys.stderr)
-            json_result = json.dumps(result, ensure_ascii=False)
-            print(f"DEBUG: JSON encoded result: {json_result}", file=sys.stderr)
             return result
         except Exception as e:
             print(f"DEBUG: Error occurred: {str(e)}", file=sys.stderr)

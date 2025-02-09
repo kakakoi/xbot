@@ -27,7 +27,8 @@ export const runPython = async (
         return;
       }
 
-      if (stderr) {
+      // 開発環境でのみデバッグ出力を表示
+      if (stderr && process.env.NODE_ENV === "development") {
         console.debug("Python debug output:", stderr);
       }
 
