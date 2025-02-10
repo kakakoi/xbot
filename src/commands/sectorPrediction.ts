@@ -7,5 +7,6 @@ export async function sectorPredictionCommand(
   await tweetCommand({
     ...options,
     prompt: () => sectorPredictionPrompts.sectorPick(),
+    includeAnalysis: true,
   });
 }

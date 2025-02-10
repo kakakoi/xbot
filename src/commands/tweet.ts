@@ -5,22 +5,13 @@ import type { PromptConfig } from "../prompts/types";
 import { runPython } from "../runPython";
 import { OpenRouterService } from "../services/openrouter";
 import { TwitterApiRateLimitError, sendTweet } from "../services/twitter";
+import { type StockAnalysis, analyzeStock } from "../utils/analyzeStock";
 
 // 銘柄コードを抽出する関数を追加
 const extractStockCodes = (text: string): string[] => {
   const matches = text.match(/[0-9]{4}/g) || [];
   return [...new Set(matches)];
 };
-
-interface StockAnalysis {
-  code: string;
-  analysis: string;
-  operatingIncomeGrowth?: number;
-  yearlyGrowthRates?: number[];
-  yearsCount: number;
-  per?: number;
-  error?: string;
-}
 
 function getWeatherEmoji(growthRate: number, per: number): string {
   // 成長率を整数に
@@ -39,6 +30,7 @@ export async function tweetCommand(options: {
   dryRun?: boolean;
   prompt: () => PromptConfig;
   dateRange?: { start: Date; end: Date };
+  includeAnalysis?: boolean; // 分析情報を追加するかどうかのオプション
 }) {
   try {
     const openrouter = new OpenRouterService(openrouterConfig);
@@ -46,55 +38,29 @@ export async function tweetCommand(options: {
 
     console.log("生成されたツイート:", tweet);
 
-    // 銘柄コードの抽出と分析を追加
-    const stockCodes = extractStockCodes(tweet);
-    let analysisInfo = ""; // 分析情報を格納する変数
+    let finalTweet = tweet;
 
-    if (stockCodes.length > 0) {
-      console.log("検出された銘柄コード:", stockCodes);
-      for (const code of stockCodes) {
-        const analysis = (await runPython(code)) as StockAnalysis;
-        console.log(`銘柄${code}の分析結果:`, analysis);
-        if (
-          analysis.operatingIncomeGrowth !== undefined &&
-          analysis.operatingIncomeGrowth !== null
-        ) {
-          const analysisLines = [];
+    // includeAnalysisがtrueで、ツイートが120文字未満の場合のみ分析情報を追加
+    if (options.includeAnalysis && tweet.length < 120) {
+      // 銘柄コードの抽出と分析を追加
+      const stockCodes = extractStockCodes(tweet);
+      let analysisInfo = ""; // 分析情報を格納する変数
 
-          // 営業利益成長率とPERを比較して天気マークを追加
-          const weatherEmoji =
-            analysis.per !== undefined && analysis.per !== null
-              ? getWeatherEmoji(analysis.operatingIncomeGrowth, analysis.per)
-              : "";
-
-          // 営業利益成長率
-          const growthText = `分析(${code}):${weatherEmoji}\n営利成長${analysis.yearsCount}年平均 +${Math.floor(analysis.operatingIncomeGrowth)}%`;
-          analysisLines.push(growthText);
-
-          // PER
-          if (analysis.per !== undefined && analysis.per !== null) {
-            analysisLines.push(`PER ${Math.floor(analysis.per)}倍`);
-          }
-
-          analysisInfo = `\n${analysisLines.join("\n")}`;
-          console.log(`銘柄${code}の分析情報:\n${analysisInfo}`);
-        }
-        if (analysis.yearlyGrowthRates) {
-          console.log(
-            `銘柄${code}の年度別成長率（直近${analysis.yearsCount}年間）:`,
-            analysis.yearlyGrowthRates
-              .map((rate) => `${rate.toFixed(2)}%`)
-              .join(", "),
-          );
-        }
-        if (analysis.error) {
-          console.error(`銘柄${code}の取得エラー:`, analysis.error);
+      if (stockCodes.length > 0) {
+        console.log("検出された銘柄コード:", stockCodes);
+        for (const code of stockCodes) {
+          const { analysisInfo: stockAnalysisInfo } = await analyzeStock(code);
+          // 各銘柄の分析情報を追加
+          analysisInfo += stockAnalysisInfo;
         }
       }
+
+      // 分析情報を追加
+      finalTweet += analysisInfo;
+    } else if (options.includeAnalysis && tweet.length >= 120) {
+      console.log("ツイートが120文字以上のため、分析情報は追加しません");
     }
 
-    // 分析情報を追加してツイート
-    const finalTweet = tweet + analysisInfo;
     console.log("最終的なツイート内容:", finalTweet);
 
     // 文字数を確認

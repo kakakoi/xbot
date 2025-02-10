@@ -1,33 +1,22 @@
+import type { StockAnalysis } from "../utils/analyzeStock";
+import type { PromptConfig } from "./types";
+
 export const stockAnalysisPrompts = {
-  newsImpact: (title: string) => `
-この経済ニュースが日本株式市場に与える影響を分析してください：
-「${title}」
+  stockAnalysis: (analysis: StockAnalysis): PromptConfig => ({
+    topic: `${analysis.name}(${analysis.code})の財務分析`,
+    mood: "analytical",
+    context: `
+端的かつインパクトのある表現で、SNS向けにキャッチーにする.言語は日本語、以下の点を含めて予測してください
+- 営業利益${analysis.yearsCount}年平均成長率は${Math.floor(analysis.operatingIncomeGrowth || 0)}%
+- PERは${Math.floor(analysis.per || 0)}倍です。
+- 年度間のデータ yearsInfo: ${analysis.yearsInfo} / yearlyGrowthRates: ${analysis.yearlyGrowthRates}
+- この銘柄の日本語名を書き出してください。漢字があれば漢字で書き出す。
+- 今年の展望を四季報の企業概要風に解説して。
+- この企業のセクターと今後3～6ヶ月の見通し
+- その後に分析情報をもとにファンダメンタルを評価してください
+- リスク管理戦略を示してください
 
-分析のポイント：
-1. 株価への影響（ポジティブ/ネガティブ）
-2. 影響を受けそうな業界や企業
-3. 市場センチメントへの影響
+略称を重視、原文をより短くし140文字以内、簡潔ながら情報量を維持を心がけてください。
 `,
-
-  selectRelevantNews: (titles: string[]) => `
-以下の経済ニュースの中から、日本の株式市場に最も大きな影響を与えそうなものを1つ選んでください。
-各ニュースのインデックス番号（0から始まる）を返してください。
-
-ニュース一覧：
-${titles.map((title, i) => `${i}: ${title}`).join("\n")}
-
-選択基準：
-1. 株価への直接的な影響度
-2. 市場全体への波及効果
-3. 投資家の関心度
-`,
-
-  weeklyPrediction: (dateRange: string) => `
-次の月曜日に買って金曜日までに株価が上昇しそうな日本株銘柄を1つ予想してください。
-
-${dateRange}までに出た材料を考慮して、以下の点を含めて予想してください：
-- 具体的な銘柄コードと会社名
-- 直近の材料や決算内容
-- 市場環境との関連性
-`,
+  }),
 };

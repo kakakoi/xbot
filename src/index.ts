@@ -1,12 +1,15 @@
 import { newsCommand } from "./commands/news";
 import { sectorPredictionCommand } from "./commands/sectorPrediction";
+import { stockAnalysisCommand } from "./commands/stockAnalysis";
 import { tweetCommand } from "./commands/tweet";
 import { weeklyPredictionCommand } from "./commands/weeklyPrediction";
 import { findUnusedFiles } from "./utils/analyzeImports";
 
 async function main() {
-  const command = process.argv[2];
-  const isDryRun = process.argv.includes("--dry-run");
+  const args = process.argv.slice(2);
+  const command = args[0];
+  const isDryRun = args.includes("--dry-run");
+  const stockCode = args.find((arg) => arg !== command && arg !== "--dry-run");
 
   switch (command) {
     case "tweet":
@@ -28,6 +31,10 @@ async function main() {
       console.log("未使用のファイルは見つかりませんでした。");
       break;
     }
+    case "code": {
+      await stockAnalysisCommand({ dryRun: isDryRun }, stockCode);
+      break;
+    }
     case "sector":
       await sectorPredictionCommand({ dryRun: isDryRun });
       break;
@@ -42,6 +49,7 @@ async function main() {
       console.error("  analyze - 未使用ファイルを分析");
       console.error("  weekly  - 週次予測を実行");
       console.error("  sector  - セクター分析を実行");
+      console.error("  code    - 銘柄分析を実行 (例: npm run code:test 4755)");
       process.exit(1);
   }
 }
