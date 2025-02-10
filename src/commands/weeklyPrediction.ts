@@ -12,5 +12,6 @@ export async function weeklyPredictionCommand(
     ...options,
     prompt: () => weeklyPredictionPrompts.stockPick(dateRangeText),
     dateRange,
+    includeAnalysis: true,
   });
 }

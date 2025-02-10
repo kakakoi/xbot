@@ -3,6 +3,7 @@ import path from "node:path";
 
 interface PythonResponse {
   code?: string;
+  name?: string;
   analysis?: string;
   operatingIncomeGrowth?: number;
   yearlyGrowthRates?: number[];
@@ -27,14 +28,17 @@ export const runPython = async (
         return;
       }
 
-      // 開発環境でのみデバッグ出力を表示
-      if (stderr && process.env.NODE_ENV === "development") {
+      // デバッグ出力を常に表示するように変更
+      if (stderr) {
         console.debug("Python debug output:", stderr);
       }
 
       try {
+        // デバッグ用に stdout の内容も表示
+        console.debug("Python stdout:", stdout);
         resolve(JSON.parse(stdout.trim()));
       } catch (e) {
+        console.error("JSON parse error. Output was:", stdout);
         reject(new Error("JSONパースエラー"));
       }
     });
