@@ -1,3 +1,4 @@
+import { MAX_TWEET_LENGTH_WITH_ANALYSIS } from "../constants";
 import type { StockAnalysis } from "../utils/analyzeStock";
 import type { PromptConfig } from "./types";
 
@@ -16,7 +17,7 @@ export const stockAnalysisPrompts = {
 - その後に分析情報をもとにファンダメンタルを評価してください
 - リスク管理戦略を示してください
 
-略称を重視、原文をより短くし140文字以内、簡潔ながら情報量を維持を心がけてください。
+略称を重視、原文をより短くし${MAX_TWEET_LENGTH_WITH_ANALYSIS}文字以内、簡潔ながら情報量を維持を心がけてください。
 `,
   }),
 };

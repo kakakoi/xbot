@@ -1,5 +1,5 @@
 import { openrouterConfig } from "../config/config";
-import { MAX_TWEET_LENGTH } from "../constants"; // 定数をインポート
+import { MAX_TWEET_LENGTH, MAX_TWEET_LENGTH_WITH_ANALYSIS } from "../constants"; // 定数をインポート
 import { ConfigError } from "../errors/ConfigError";
 import type { PromptConfig } from "../prompts/types";
 import { runPython } from "../runPython";
@@ -40,8 +40,11 @@ export async function tweetCommand(options: {
 
     let finalTweet = tweet;
 
-    // includeAnalysisがtrueで、ツイートが120文字未満の場合のみ分析情報を追加
-    if (options.includeAnalysis && tweet.length < 120) {
+    // includeAnalysisがtrueで、ツイートがMAX_TWEET_LENGTH_WITH_ANALYSIS文字未満の場合のみ分析情報を追加
+    if (
+      options.includeAnalysis &&
+      tweet.length < MAX_TWEET_LENGTH_WITH_ANALYSIS
+    ) {
       // 銘柄コードの抽出と分析を追加
       const stockCodes = extractStockCodes(tweet);
       let analysisInfo = ""; // 分析情報を格納する変数
@@ -57,8 +60,13 @@ export async function tweetCommand(options: {
 
       // 分析情報を追加
       finalTweet += analysisInfo;
-    } else if (options.includeAnalysis && tweet.length >= 120) {
-      console.log("ツイートが120文字以上のため、分析情報は追加しません");
+    } else if (
+      options.includeAnalysis &&
+      tweet.length >= MAX_TWEET_LENGTH_WITH_ANALYSIS
+    ) {
+      console.log(
+        `ツイートが${MAX_TWEET_LENGTH_WITH_ANALYSIS}文字以上のため、分析情報は追加しません`,
+      );
     }
 
     console.log("最終的なツイート内容:", finalTweet);
