@@ -1,3 +1,5 @@
+import { MAX_TWEET_LENGTH_WITH_ANALYSIS } from "../constants";
+
 export const newsAnalysisPrompts = {
   marketImpact: (title: string) => ({
     topic: "経済ニュースの株式市場への影響分析",
@@ -10,7 +12,7 @@ export const newsAnalysisPrompts = {
 1. 株価への影響（ポジティブ/ネガティブ）
 2. 影響を受けそうな業界や企業
 3. 市場センチメントへの影響
-4. 略称を重視、原文をより短くし120文字以内、簡潔ながら情報量を維持を心がけてください。
+4. 略称を重視、原文をより短くし${MAX_TWEET_LENGTH_WITH_ANALYSIS}文字以内、簡潔ながら情報量を維持を心がけてください。
 `,
   }),
 
